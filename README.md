@@ -1,15 +1,30 @@
-# SRE
+# SRE Scripts
 A series of SRE scripts made to showcase language understanding 
 
-## python 
+| Script | Language |
+|--------|----------|
+| backup-tool |  ![Python](https://img.shields.io/badge/python-3670A0?style=for-the-badge&logo=python&logoColor=ffdd54) |
+
+![Bash Script](https://img.shields.io/badge/bash_script-%23121011.svg?style=for-the-badge&logo=gnu-bash&logoColor=white)
+![Python](https://img.shields.io/badge/python-3670A0?style=for-the-badge&logo=python&logoColor=ffdd54)
+![Go](https://img.shields.io/badge/go-%2300ADD8.svg?style=for-the-badge&logo=go&logoColor=white)
+![Linux](https://img.shields.io/badge/Linux-FCC624?style=for-the-badge&logo=linux&logoColor=black)
+![Windows](https://img.shields.io/badge/Windows-0078D6?style=for-the-badge&logo=windows&logoColor=white)
+
+## Python:
 ### backup-tool
-a small backup tool that's cross platform (unix/windows), there will the following file structure 
-- '''main.py''' an entrypoint to the script
-- '''./modules''' a directory with all custom modules.
-- '''./logs''' a directory that stores all logs.
+A cross-platform backup utility that supports both Windows and Unix systems with configurable compression and notification options.
+<br>
+The tool will:
+1. Validate the configuration
+2. Check available disk space
+3. Create a compressed backup (Windows) or sync files (Unix)
+4. Send notifications if configured
 
 how to start:
-'''python
+```python
 pip install -r requirements.txt
 python3 main.py
-'''
+```
+
+## Go:
