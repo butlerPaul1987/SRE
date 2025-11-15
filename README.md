@@ -5,6 +5,7 @@ A series of SRE scripts made to showcase language understanding
 |--------|----------|
 | backup-tool |  ![Python](https://img.shields.io/badge/python-3670A0?style=for-the-badge&logo=python&logoColor=ffdd54) |
 | KubeCTL-tool | ![PowerShell](https://img.shields.io/badge/PowerShell-%235391FE.svg?style=for-the-badge&logo=powershell&logoColor=white) |
+| Morrisons-web-scraper |  ![Python](https://img.shields.io/badge/python-3670A0?style=for-the-badge&logo=python&logoColor=ffdd54) |
 
 ![Bash Script](https://img.shields.io/badge/bash_script-%23121011.svg?style=for-the-badge&logo=gnu-bash&logoColor=white)
 ![Python](https://img.shields.io/badge/python-3670A0?style=for-the-badge&logo=python&logoColor=ffdd54)
@@ -25,17 +26,8 @@ Usage:
 ## Python:
 ### backup-tool
 A cross-platform backup utility that supports both Windows and Unix systems with configurable compression and notification options.
-<br>
-The tool will:
-1. Validate the configuration
-2. Check available disk space
-3. Create a compressed backup (Windows) or sync files (Unix)
-4. Send notifications if configured
 
-how to start:
-```python
-pip install -r requirements.txt
-python3 main.py
-```
+### Morrisons-web-scraper
+A Python-based web scraper for extracting product information from Morrisons online grocery store, including product names and pricing details.
 
 ## Go:
