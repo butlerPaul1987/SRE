@@ -17,11 +17,6 @@ A series of SRE scripts made to showcase language understanding
 ## PowerShell:
 ### KubeCTL-tool (Delete pods)
 This PowerShell script automates the process of restarting multiple Kubernetes pods within a specified namespace. It reads pod names from a file and restarts each pod individually.
-<br>
-Usage:
-```powershell
-.\RestartPods.ps1 -namespace <namespace> -filename <path_to_file>
-```
 
 ## Python:
 ### backup-tool
