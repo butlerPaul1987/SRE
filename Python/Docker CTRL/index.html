@@ -1,0 +1,750 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Docker Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Dark mode (default) */
+        body[data-theme="dark"] {
+            background-color: #09090b;
+            color: #fafafa;
+        }
+        body[data-theme="dark"] .bg-zinc-900 {
+            background-color: #18181b;
+        }
+        body[data-theme="dark"] .border-zinc-800 {
+            border-color: #27272a;
+        }
+        body[data-theme="dark"] .text-zinc-100 {
+            color: #fafafa;
+        }
+        body[data-theme="dark"] .text-zinc-300 {
+            color: #d4d4d8;
+        }
+        body[data-theme="dark"] .text-zinc-400 {
+            color: #a1a1aa;
+        }
+        body[data-theme="dark"] .text-zinc-500 {
+            color: #71717a;
+        }
+        body[data-theme="dark"] .text-zinc-600 {
+            color: #52525b;
+        }
+        body[data-theme="dark"] .text-zinc-700 {
+            color: #3f3f46;
+        }
+        body[data-theme="dark"] .border-zinc-700 {
+            border-color: #3f3f46;
+        }
+        body[data-theme="dark"] .hover\:bg-zinc-800\/30:hover {
+            background-color: rgba(39, 39, 42, 0.3);
+        }
+        body[data-theme="dark"] .border-zinc-800\/50 {
+            border-color: rgba(39, 39, 42, 0.5);
+        }
+        body[data-theme="dark"] .bg-zinc-950 {
+            background-color: #09090b;
+        }
+        body[data-theme="dark"] .filter-btn.active {
+            background-color: #3f3f46;
+            color: #fafafa;
+            border-color: #52525b;
+        }
+        body[data-theme="dark"] .filter-btn:hover {
+            border-color: #52525b;
+            color: #d4d4d8;
+        }
+
+        /* Light mode */
+        body[data-theme="light"] {
+            background-color: #fafafa;
+            color: #18181b;
+        }
+        body[data-theme="light"] .bg-zinc-900 {
+            background-color: #ffffff;
+        }
+        body[data-theme="light"] .border-zinc-800 {
+            border-color: #e4e4e7;
+        }
+        body[data-theme="light"] .text-zinc-100 {
+            color: #18181b;
+        }
+        body[data-theme="light"] .text-zinc-300 {
+            color: #3f3f46;
+        }
+        body[data-theme="light"] .text-zinc-400 {
+            color: #52525b;
+        }
+        body[data-theme="light"] .text-zinc-500 {
+            color: #71717a;
+        }
+        body[data-theme="light"] .text-zinc-600 {
+            color: #a1a1aa;
+        }
+        body[data-theme="light"] .text-zinc-700 {
+            color: #d4d4d8;
+        }
+        body[data-theme="light"] .border-zinc-700 {
+            border-color: #d4d4d8;
+        }
+        body[data-theme="light"] .hover\:bg-zinc-800\/30:hover {
+            background-color: rgba(228, 228, 231, 0.5);
+        }
+        body[data-theme="light"] .border-zinc-800\/50 {
+            border-color: rgba(228, 228, 231, 0.5);
+        }
+        body[data-theme="light"] .hover\:border-zinc-500:hover {
+            border-color: #71717a;
+        }
+        body[data-theme="light"] .hover\:text-zinc-200:hover {
+            color: #27272a;
+        }
+        body[data-theme="light"] .bg-zinc-950 {
+            background-color: #fafafa;
+        }
+        body[data-theme="light"] .filter-btn.active {
+            background-color: #d4d4d8;
+            color: #18181b;
+            border-color: #a1a1aa;
+        }
+        body[data-theme="light"] .filter-btn:hover {
+            border-color: #a1a1aa;
+            color: #3f3f46;
+        }
+
+        /* Toast animations */
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+        .animate-slide-in {
+            animation: slideIn 0.3s ease-out;
+        }
+
+        /* Button loading state */
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+    </style>
+</head>
+<body class="min-h-screen p-6 font-mono transition-colors" data-theme="dark">
+    <div class="max-w-[1400px] mx-auto">
+        <!-- Header -->
+        <div class="border-b border-zinc-800 dark:border-zinc-800 pb-4 mb-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h1 class="text-xl font-semibold text-zinc-100 dark:text-zinc-100">docker dashboard</h1>
+                    <p class="text-sm text-zinc-500 dark:text-zinc-500 mt-1">container monitoring</p>
+                </div>
+                <div class="flex items-center gap-4">
+                    <button id="theme-toggle" class="px-3 py-1 text-xs border border-zinc-700 text-zinc-400 hover:border-zinc-500 hover:text-zinc-200 transition-colors">
+                        <span id="theme-icon">☀️</span>
+                    </button>
+                    <div class="text-right text-xs text-zinc-600 dark:text-zinc-600">
+                        <div id="last-update">—</div>
+                        <div class="text-zinc-700 dark:text-zinc-700">auto-refresh: 5s</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Stats Grid -->
+        <div class="grid grid-cols-4 gap-4 mb-6">
+            <div class="bg-zinc-900 border border-zinc-800 p-4">
+                <div class="text-xs text-zinc-500 uppercase tracking-wider mb-2">Total</div>
+                <div class="text-3xl font-light text-zinc-100" id="total-containers">0</div>
+            </div>
+            <div class="bg-zinc-900 border border-zinc-800 p-4">
+                <div class="text-xs text-zinc-500 uppercase tracking-wider mb-2">Running</div>
+                <div class="text-3xl font-light text-emerald-400" id="running-containers">0</div>
+            </div>
+            <div class="bg-zinc-900 border border-zinc-800 p-4">
+                <div class="text-xs text-zinc-500 uppercase tracking-wider mb-2">Stopped</div>
+                <div class="text-3xl font-light text-zinc-500" id="stopped-containers">0</div>
+            </div>
+            <div class="bg-zinc-900 border border-zinc-800 p-4">
+                <div class="text-xs text-zinc-500 uppercase tracking-wider mb-2">Images</div>
+                <div class="text-3xl font-light text-zinc-100" id="total-images">0</div>
+            </div>
+        </div>
+
+        <!-- Search and Filter Bar -->
+        <div class="bg-zinc-900 border border-zinc-800 p-4 mb-4">
+            <div class="flex gap-4 items-center">
+                <div class="flex-1">
+                    <input
+                        type="text"
+                        id="search-input"
+                        placeholder="Search containers by name, ID, or image..."
+                        class="w-full px-3 py-2 bg-zinc-950 border border-zinc-700 text-zinc-300 text-sm focus:outline-none focus:border-zinc-500 transition-colors"
+                    />
+                </div>
+                <div class="flex gap-2">
+                    <button
+                        data-filter="all"
+                        class="filter-btn active px-3 py-2 text-xs border border-zinc-700 text-zinc-400 transition-colors"
+                    >
+                        All
+                    </button>
+                    <button
+                        data-filter="running"
+                        class="filter-btn px-3 py-2 text-xs border border-zinc-700 text-zinc-400 transition-colors"
+                    >
+                        Running
+                    </button>
+                    <button
+                        data-filter="stopped"
+                        class="filter-btn px-3 py-2 text-xs border border-zinc-700 text-zinc-400 transition-colors"
+                    >
+                        Stopped
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Containers Table -->
+        <div class="bg-zinc-900 border border-zinc-800 mb-6">
+            <div class="border-b border-zinc-800 px-4 py-3">
+                <h2 class="text-sm font-semibold text-zinc-400 uppercase tracking-wider">Containers</h2>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="w-full text-sm">
+                    <thead>
+                        <tr class="border-b border-zinc-800">
+                            <th class="sortable text-left px-4 py-3 text-xs font-semibold text-zinc-500 uppercase tracking-wider cursor-pointer hover:text-zinc-300 transition-colors" data-sort="id">
+                                ID <span class="sort-indicator"></span>
+                            </th>
+                            <th class="sortable text-left px-4 py-3 text-xs font-semibold text-zinc-500 uppercase tracking-wider cursor-pointer hover:text-zinc-300 transition-colors" data-sort="image">
+                                Image <span class="sort-indicator"></span>
+                            </th>
+                            <th class="sortable text-left px-4 py-3 text-xs font-semibold text-zinc-500 uppercase tracking-wider cursor-pointer hover:text-zinc-300 transition-colors" data-sort="name">
+                                Name <span class="sort-indicator"></span>
+                            </th>
+                            <th class="sortable text-left px-4 py-3 text-xs font-semibold text-zinc-500 uppercase tracking-wider cursor-pointer hover:text-zinc-300 transition-colors" data-sort="status">
+                                Status <span class="sort-indicator"></span>
+                            </th>
+                            <th class="text-left px-4 py-3 text-xs font-semibold text-zinc-500 uppercase tracking-wider">Ports</th>
+                            <th class="text-left px-4 py-3 text-xs font-semibold text-zinc-500 uppercase tracking-wider">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="containers-tbody">
+                        <tr>
+                            <td colspan="6" class="px-4 py-8 text-center text-zinc-600">Loading...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Container -->
+    <div id="toast-container" class="fixed top-4 right-4 z-50 flex flex-col gap-2" style="max-width: 400px;"></div>
+
+    <!-- Logs Modal -->
+    <div id="logs-modal" class="fixed inset-0 bg-black/80 hidden items-center justify-center z-50" style="display: none;">
+        <div class="bg-zinc-900 border border-zinc-800 max-w-4xl w-full max-h-[80vh] m-4 flex flex-col">
+            <div class="border-b border-zinc-800 px-4 py-3 flex justify-between items-center">
+                <h2 class="text-sm font-semibold text-zinc-400 uppercase tracking-wider">Container Logs</h2>
+                <button id="close-logs-modal" class="text-zinc-500 hover:text-zinc-300 text-xl leading-none">&times;</button>
+            </div>
+            <div class="p-4 overflow-auto flex-1">
+                <pre id="logs-content" class="text-xs text-zinc-300 font-mono whitespace-pre-wrap">Loading logs...</pre>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Theme management
+        function initTheme() {
+            const savedTheme = localStorage.getItem('theme') || 'dark';
+            setTheme(savedTheme);
+        }
+
+        function setTheme(theme) {
+            document.body.setAttribute('data-theme', theme);
+            localStorage.setItem('theme', theme);
+            const icon = document.getElementById('theme-icon');
+            if (icon) {
+                icon.textContent = theme === 'dark' ? '☀️' : '🌙';
+            }
+        }
+
+        function toggleTheme() {
+            const currentTheme = document.body.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            setTheme(newTheme);
+        }
+
+        // Initialize theme on page load
+        initTheme();
+
+        // Add event listener when DOM is ready
+        document.addEventListener('DOMContentLoaded', function() {
+            const toggleBtn = document.getElementById('theme-toggle');
+            if (toggleBtn) {
+                toggleBtn.addEventListener('click', toggleTheme);
+            }
+        });
+
+        function formatTimestamp() {
+            const now = new Date();
+            return now.toLocaleTimeString('en-GB', { hour12: false });
+        }
+
+        // Toast notifications
+        function showToast(message, type = 'info') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+
+            const colors = {
+                success: 'border-emerald-500 bg-emerald-500/10 text-emerald-400',
+                error: 'border-red-500 bg-red-500/10 text-red-400',
+                info: 'border-blue-500 bg-blue-500/10 text-blue-400',
+                warning: 'border-yellow-500 bg-yellow-500/10 text-yellow-400'
+            };
+
+            toast.className = `border-l-4 ${colors[type] || colors.info} bg-zinc-900 border border-zinc-800 p-4 text-sm shadow-lg animate-slide-in`;
+            toast.textContent = message;
+
+            container.appendChild(toast);
+
+            // Remove toast after 4 seconds
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                toast.style.transform = 'translateX(100%)';
+                toast.style.transition = 'all 0.3s ease-out';
+                setTimeout(() => toast.remove(), 300);
+            }, 4000);
+        }
+
+        function formatPorts(portsString) {
+            if (!portsString || portsString === '—') return '—';
+
+            // Parse Docker port format: "0.0.0.0:8080->80/tcp, :::8081->81/tcp"
+            const portMappings = portsString.split(', ').map(mapping => {
+                const match = mapping.match(/(?:.*:)?(\d+)->(\d+)\/(tcp|udp)/);
+                if (match) {
+                    return `${match[1]} → ${match[2]}/${match[3]}`;
+                }
+                return mapping;
+            });
+
+            return portMappings.join(', ');
+        }
+
+        // Global state for filtering and sorting
+        let allContainers = [];
+        let currentFilter = 'all';
+        let currentSearch = '';
+        let currentSort = { column: null, direction: 'asc' };
+
+        function filterContainers(containers) {
+            let filtered = containers;
+
+            // Apply status filter
+            if (currentFilter === 'running') {
+                filtered = filtered.filter(c => c.State === 'running');
+            } else if (currentFilter === 'stopped') {
+                filtered = filtered.filter(c => c.State !== 'running');
+            }
+
+            // Apply search filter
+            if (currentSearch) {
+                const searchLower = currentSearch.toLowerCase();
+                filtered = filtered.filter(c =>
+                    c.Names.toLowerCase().includes(searchLower) ||
+                    c.ID.toLowerCase().includes(searchLower) ||
+                    c.Image.toLowerCase().includes(searchLower)
+                );
+            }
+
+            return filtered;
+        }
+
+        function sortContainers(containers) {
+            if (!currentSort.column) return containers;
+
+            return [...containers].sort((a, b) => {
+                let aVal, bVal;
+
+                switch (currentSort.column) {
+                    case 'id':
+                        aVal = a.ID;
+                        bVal = b.ID;
+                        break;
+                    case 'image':
+                        aVal = a.Image;
+                        bVal = b.Image;
+                        break;
+                    case 'name':
+                        aVal = a.Names;
+                        bVal = b.Names;
+                        break;
+                    case 'status':
+                        aVal = a.State;
+                        bVal = b.State;
+                        break;
+                    default:
+                        return 0;
+                }
+
+                if (aVal < bVal) return currentSort.direction === 'asc' ? -1 : 1;
+                if (aVal > bVal) return currentSort.direction === 'asc' ? 1 : -1;
+                return 0;
+            });
+        }
+
+        function applyFilters() {
+            updateDashboard(allContainers);
+        }
+
+        function updateSortIndicators() {
+            // Clear all sort indicators
+            document.querySelectorAll('.sort-indicator').forEach(indicator => {
+                indicator.textContent = '';
+            });
+
+            // Set active sort indicator
+            if (currentSort.column) {
+                const header = document.querySelector(`[data-sort="${currentSort.column}"] .sort-indicator`);
+                if (header) {
+                    header.textContent = currentSort.direction === 'asc' ? ' ▲' : ' ▼';
+                }
+            }
+        }
+
+        function updateDashboard(containers) {
+            console.log('Updating dashboard with containers:', containers);
+
+            // Store all containers
+            allContainers = containers;
+
+            // Apply filters to get displayed containers
+            let filteredContainers = filterContainers(containers);
+
+            // Apply sorting
+            filteredContainers = sortContainers(filteredContainers);
+
+            // Update sort indicators
+            updateSortIndicators();
+
+            // Calculate statistics from ALL containers (not filtered)
+            const total = containers.length;
+            const running = containers.filter(c => c.State === 'running').length;
+            const stopped = total - running;
+            const uniqueImages = new Set(containers.map(c => c.Image)).size;
+
+            // Update statistics
+            document.getElementById('total-containers').textContent = total;
+            document.getElementById('running-containers').textContent = running;
+            document.getElementById('stopped-containers').textContent = stopped;
+            document.getElementById('total-images').textContent = uniqueImages;
+            document.getElementById('last-update').textContent = formatTimestamp();
+
+            // Update containers table
+            const tbody = document.getElementById('containers-tbody');
+            tbody.innerHTML = '';
+
+            if (filteredContainers.length > 0) {
+                filteredContainers.forEach(container => {
+                    const row = document.createElement('tr');
+                    row.className = 'border-b border-zinc-800/50 hover:bg-zinc-800/30 transition-colors';
+                    
+                    const isRunning = container.State === 'running';
+                    const statusClass = isRunning ? 'text-emerald-400' : 'text-zinc-500';
+                    const statusIndicator = isRunning ? '●' : '○';
+                    
+                    row.innerHTML = `
+                        <td class="px-4 py-3 text-zinc-400" title="${container.ID}">
+                            <span class="cursor-help border-b border-dotted border-zinc-700">${container.ID.substring(0, 12)}</span>
+                        </td>
+                        <td class="px-4 py-3 text-zinc-300">${container.Image}</td>
+                        <td class="px-4 py-3 text-zinc-300">${container.Names}</td>
+                        <td class="px-4 py-3 ${statusClass}">
+                            <span class="inline-flex items-center gap-2">
+                                <span>${statusIndicator}</span>
+                                <span>${container.Status}</span>
+                            </span>
+                        </td>
+                        <td class="px-4 py-3 text-zinc-500">${formatPorts(container.Ports)}</td>
+                        <td class="px-4 py-3">
+                            <div class="flex gap-2">
+                                <button
+                                    data-container-id="${container.ID}"
+                                    data-container-name="${container.Names}"
+                                    data-container-state="${container.State}"
+                                    class="toggle-btn px-3 py-1 text-xs border transition-colors ${
+                                        isRunning
+                                            ? 'border-zinc-700 text-zinc-400 hover:border-red-500 hover:text-red-400'
+                                            : 'border-zinc-700 text-zinc-400 hover:border-emerald-500 hover:text-emerald-400'
+                                    }">
+                                    ${isRunning ? '[stop]' : '[start]'}
+                                </button>
+                                ${isRunning ? `
+                                <button
+                                    data-container-id="${container.ID}"
+                                    data-container-name="${container.Names}"
+                                    class="restart-btn px-3 py-1 text-xs border border-zinc-700 text-zinc-400 hover:border-yellow-500 hover:text-yellow-400 transition-colors">
+                                    [restart]
+                                </button>
+                                <button
+                                    data-container-id="${container.ID}"
+                                    data-container-name="${container.Names}"
+                                    class="logs-btn px-3 py-1 text-xs border border-zinc-700 text-zinc-400 hover:border-blue-500 hover:text-blue-400 transition-colors">
+                                    [logs]
+                                </button>
+                                ` : ''}
+                                <button
+                                    data-container-id="${container.ID}"
+                                    data-container-name="${container.Names}"
+                                    class="remove-btn px-3 py-1 text-xs border border-zinc-700 text-zinc-400 hover:border-red-600 hover:text-red-600 transition-colors">
+                                    [remove]
+                                </button>
+                            </div>
+                        </td>
+                    `;
+                    tbody.appendChild(row);
+                });
+                
+                // Add event listeners to all toggle buttons
+                document.querySelectorAll('.toggle-btn').forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        const containerId = this.getAttribute('data-container-id');
+                        const containerName = this.getAttribute('data-container-name');
+                        const containerState = this.getAttribute('data-container-state');
+
+                        // Confirm before stopping containers
+                        if (containerState === 'running') {
+                            if (!confirm(`Stop container "${containerName}"?\n\nID: ${containerId.substring(0, 12)}`)) {
+                                return;
+                            }
+                        }
+
+                        toggleContainer(containerId, containerState);
+                    });
+                });
+
+                // Add event listeners to restart buttons
+                document.querySelectorAll('.restart-btn').forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        const containerId = this.getAttribute('data-container-id');
+                        const containerName = this.getAttribute('data-container-name');
+                        restartContainer(containerId, containerName);
+                    });
+                });
+
+                // Add event listeners to logs buttons
+                document.querySelectorAll('.logs-btn').forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        const containerId = this.getAttribute('data-container-id');
+                        const containerName = this.getAttribute('data-container-name');
+                        showLogs(containerId, containerName);
+                    });
+                });
+
+                // Add event listeners to remove buttons
+                document.querySelectorAll('.remove-btn').forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        const containerId = this.getAttribute('data-container-id');
+                        const containerName = this.getAttribute('data-container-name');
+                        removeContainer(containerId, containerName);
+                    });
+                });
+            } else {
+                tbody.innerHTML = '<tr><td colspan="6" class="px-4 py-8 text-center text-zinc-600">No containers found</td></tr>';
+            }
+        }
+
+        async function loadDockerInfo() {
+            try {
+                console.log('Fetching docker info...');
+                const response = await fetch('/api/docker-info');
+                console.log('Response status:', response.status);
+                const containers = await response.json();
+                console.log('Containers received:', containers);
+                updateDashboard(containers);
+            } catch (error) {
+                console.error('Error loading Docker info:', error);
+                document.getElementById('containers-tbody').innerHTML = 
+                    '<tr><td colspan="6" class="px-4 py-8 text-center text-red-500">Error: ' + error.message + '</td></tr>';
+            }
+        }
+
+        async function toggleContainer(containerId, currentState) {
+            const action = currentState === 'running' ? 'stop' : 'start';
+            const shortId = containerId.substring(0, 12);
+
+            try {
+                const response = await fetch(`/api/docker/${action}/${containerId}`, {
+                    method: 'POST'
+                });
+
+                if (response.ok) {
+                    showToast(`Container ${shortId} ${action}ed successfully`, 'success');
+                    await loadDockerInfo();
+                } else {
+                    const error = await response.json();
+                    showToast(`Failed to ${action} container: ${error.detail || 'Unknown error'}`, 'error');
+                }
+            } catch (error) {
+                showToast(`Error: ${error.message}`, 'error');
+            }
+        }
+
+        async function restartContainer(containerId, containerName) {
+            const shortId = containerId.substring(0, 12);
+            if (!confirm(`Restart container "${containerName}"?\n\nID: ${shortId}`)) {
+                return;
+            }
+
+            showToast(`Restarting container ${shortId}...`, 'info');
+
+            try {
+                const response = await fetch(`/api/docker/restart/${containerId}`, {
+                    method: 'POST'
+                });
+
+                if (response.ok) {
+                    showToast(`Container ${shortId} restarted successfully`, 'success');
+                    await loadDockerInfo();
+                } else {
+                    const error = await response.json();
+                    showToast(`Failed to restart container: ${error.detail || 'Unknown error'}`, 'error');
+                }
+            } catch (error) {
+                showToast(`Error: ${error.message}`, 'error');
+            }
+        }
+
+        async function showLogs(containerId, containerName) {
+            const modal = document.getElementById('logs-modal');
+            const logsContent = document.getElementById('logs-content');
+
+            // Show modal
+            modal.style.display = 'flex';
+            logsContent.textContent = 'Loading logs...';
+
+            try {
+                const response = await fetch(`/api/docker/logs/${containerId}`);
+
+                if (response.ok) {
+                    const data = await response.json();
+                    logsContent.textContent = data.logs || 'No logs available';
+                } else {
+                    const error = await response.json();
+                    logsContent.textContent = `Error: ${error.detail || 'Failed to fetch logs'}`;
+                }
+            } catch (error) {
+                logsContent.textContent = `Error: ${error.message}`;
+            }
+        }
+
+        function closeLogsModal() {
+            const modal = document.getElementById('logs-modal');
+            modal.style.display = 'none';
+        }
+
+        async function removeContainer(containerId, containerName) {
+            const shortId = containerId.substring(0, 12);
+            if (!confirm(`⚠️ REMOVE container "${containerName}"?\n\nID: ${shortId}\n\nThis action cannot be undone!`)) {
+                return;
+            }
+
+            showToast(`Removing container ${shortId}...`, 'warning');
+
+            try {
+                const response = await fetch(`/api/docker/remove/${containerId}`, {
+                    method: 'POST'
+                });
+
+                if (response.ok) {
+                    showToast(`Container ${shortId} removed successfully`, 'success');
+                    await loadDockerInfo();
+                } else {
+                    const error = await response.json();
+                    showToast(`Failed to remove container: ${error.detail || 'Unknown error'}`, 'error');
+                }
+            } catch (error) {
+                showToast(`Error: ${error.message}`, 'error');
+            }
+        }
+
+        // Initialize search and filter event listeners
+        document.addEventListener('DOMContentLoaded', function() {
+            // Search input
+            const searchInput = document.getElementById('search-input');
+            if (searchInput) {
+                searchInput.addEventListener('input', function(e) {
+                    currentSearch = e.target.value;
+                    applyFilters();
+                });
+            }
+
+            // Filter buttons
+            const filterButtons = document.querySelectorAll('.filter-btn');
+            filterButtons.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    // Remove active class from all buttons
+                    filterButtons.forEach(b => b.classList.remove('active'));
+
+                    // Add active class to clicked button
+                    this.classList.add('active');
+
+                    // Update filter
+                    currentFilter = this.getAttribute('data-filter');
+                    applyFilters();
+                });
+            });
+
+            // Sortable table headers
+            const sortableHeaders = document.querySelectorAll('.sortable');
+            sortableHeaders.forEach(header => {
+                header.addEventListener('click', function() {
+                    const column = this.getAttribute('data-sort');
+
+                    // Toggle direction if clicking same column, otherwise reset to asc
+                    if (currentSort.column === column) {
+                        currentSort.direction = currentSort.direction === 'asc' ? 'desc' : 'asc';
+                    } else {
+                        currentSort.column = column;
+                        currentSort.direction = 'asc';
+                    }
+
+                    applyFilters();
+                });
+            });
+
+            // Close modal button
+            const closeModalBtn = document.getElementById('close-logs-modal');
+            if (closeModalBtn) {
+                closeModalBtn.addEventListener('click', closeLogsModal);
+            }
+
+            // Close modal when clicking outside
+            const logsModal = document.getElementById('logs-modal');
+            if (logsModal) {
+                logsModal.addEventListener('click', function(e) {
+                    if (e.target === logsModal) {
+                        closeLogsModal();
+                    }
+                });
+            }
+        });
+
+        // Load data immediately
+        loadDockerInfo();
+
+        // Auto-refresh every 5 seconds
+        setInterval(loadDockerInfo, 5000);
+    </script>
+</body>
+</html>
