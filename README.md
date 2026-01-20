@@ -15,14 +15,17 @@ A series of SRE scripts made to showcase language understanding
 ![PowerShell](https://img.shields.io/badge/PowerShell-%235391FE.svg?style=for-the-badge&logo=powershell&logoColor=white)
 
 ## PowerShell:
-### ![KubeCTL-tool](https://github.com/butlerPaul1987/SRE/blob/main/PowerShell/kubectlDeletePods.ps1) (Delete pods)
+### [KubeCTL-tool](https://github.com/butlerPaul1987/SRE/blob/main/PowerShell/kubectlDeletePods.ps1) (Delete pods)
 This PowerShell script automates the process of restarting multiple Kubernetes pods within a specified namespace. It reads pod names from a file and restarts each pod individually.
 
 ## Python:
-### ![backup-tool](https://github.com/butlerPaul1987/SRE/tree/main/Python/backup-tool)
+### [backup-tool](https://github.com/butlerPaul1987/SRE/tree/main/Python/backup-tool)
 A cross-platform backup utility that supports both Windows and Unix systems with configurable compression and notification options.
 
-### ![Morrisons-web-scraper](https://github.com/butlerPaul1987/SRE/tree/main/Python/webscraper/MorrisonsPriceCheck)
+### [Morrisons-web-scraper](https://github.com/butlerPaul1987/SRE/tree/main/Python/webscraper/MorrisonsPriceCheck)
 A Python-based web scraper for extracting product information from Morrisons online grocery store, including product names and pricing details.
+
+### [Docker-CTRL](https://github.com/butlerPaul1987/SRE/tree/main/Python/Docker%20CTRL)
+A Python-based Flask APP to show Docker container that can be start/stopped and view logs.
 
 ## Go:
